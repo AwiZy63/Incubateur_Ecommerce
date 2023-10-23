@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { apiHandler, notify } from '../App';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { addToCart } from '../stores/slices/Cart.slice';
 
 export default function ProductDetails(props) {
@@ -11,6 +11,7 @@ export default function ProductDetails(props) {
   const { productId } = useParams();
   const navigate = useNavigate();
 
+  const cart = useSelector(state => state.cart.cartItems);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -23,6 +24,9 @@ export default function ProductDetails(props) {
       }
 
       setProduct(response.product);
+      if (response.product.stock <= 0) {
+        setQuantityToAdd(0);
+      }
     }
 
     if (!productId) {
@@ -33,6 +37,19 @@ export default function ProductDetails(props) {
   }, [productId, navigate])
 
   const handleAddToBasket = () => {
+    if (product.stock <= 0 || product.stock < quantityToAdd) {
+      notify('error', `Le stock du produit (${product.name}) est insuffisant`);
+      return;
+    }
+
+    const productInCart = cart.find(item => item.id === product.id);
+    if (productInCart) {
+      if (productInCart.quantity + parseInt(quantityToAdd) > product.stock) {
+        notify('error', `Le stock du produit (${product.name}) est insuffisant`);
+        return;
+      }
+    }
+
     const formattedProduct = {
       id: product.id,
       name: product.name,
@@ -59,11 +76,18 @@ export default function ProductDetails(props) {
         <div className="column is-6">
           <p className="title is-4">{product.name}</p>
           <p className="subtitle is-6 mt-4">{product.description || "Aucune description n'est disponible pour ce produit."}</p>
+          {
+            product.stock <= 0 ?
+              <p className="subtitle color-red is-6 mt-4">Produit actuellement hors stock</p>
+            :
+              <p className="subtitle is-6 mt-4">Stock disponible: {product.stock}</p>
+
+          }
           <p className="title is-4 mt-4">{parseFloat(product.price).toFixed(2)}€</p>
           <div className='columns'>
             <div className='column is-2'>
               <label className="label">Quantité</label>
-              <input onChange={(e) => setQuantityToAdd(e.target.value)} className="input" type="number" min={1} value={quantityToAdd} defaultValue={1} />
+              <input disabled={product.stock <= 0} onChange={(e) => product.stock > 0 && setQuantityToAdd(e.target.value)} className="input" type="number" min={1} value={quantityToAdd} />
             </div>
             <div className='column is-4'>
               <label className="label">Total</label>
@@ -72,7 +96,7 @@ export default function ProductDetails(props) {
             <div className="column is-4">
             </div>
           </div>
-          <button onClick={() => handleAddToBasket()} className="button is-primary">Ajouter au panier</button>
+          <button disabled={product.stock <= 0} onClick={() => handleAddToBasket()} className={`button ${product.stock <= 0 ? 'is-danger' : 'is-primary'}`}>{product.stock <= 0 ? "Hors stock" : "Ajouter au panier"}</button>
         </div>
       </div>
     </section>
