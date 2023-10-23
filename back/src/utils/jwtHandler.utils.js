@@ -10,8 +10,7 @@ const generateAccessToken = (user) => {
         email: user.email,
         isAdmin: user.isAdmin
     }, JWT_SECRET, {
-        // Expires in 1 minute
-        expiresIn: "1m"
+        expiresIn: "1d"
     });
 }
 
