@@ -19,8 +19,8 @@ module.exports = {
           type: Sequelize.FLOAT,
           allowNull: false,
       },
-      image: {
-          type: Sequelize.STRING,
+      images: {
+          type: Sequelize.TEXT('long'),
           allowNull: false,
       },
       description: {

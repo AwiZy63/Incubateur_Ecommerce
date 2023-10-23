@@ -5,13 +5,13 @@ import { addToCart } from '../stores/slices/Cart.slice';
 import { notify } from '../App';
 
 export default function ProductCard(props) {
-    const { id, name, price, image, stock } = props.product;
+    const { id, name, price, images, stock } = props.product;
     const { category, setSelectedCategory } = props;
 
     const dispatch = useDispatch();
     const cart = useSelector(state => state.cart.cartItems);
 
-    if (!id || !name || !price || !image) {
+    if (!id || !name || !price || !images) {
         return null;
     }
 
@@ -36,7 +36,7 @@ export default function ProductCard(props) {
             id,
             name,
             price,
-            image,
+            images,
             quantity: 1,
         }
 
@@ -54,7 +54,7 @@ export default function ProductCard(props) {
         <Link onClick={(e) => e.stopPropagation()} to={`/product/${id}`} className="card">
             <div className="card-image">
                 <figure className="image is-4by3">
-                    <img src={`${image}`} alt={name} />
+                    <img className='product-image' src={`${JSON.parse(images)[0]}`} alt={name} />
                 </figure>
             </div>
             <div className="card-content">

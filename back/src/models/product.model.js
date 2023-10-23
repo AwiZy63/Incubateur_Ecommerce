@@ -23,8 +23,8 @@ Product.init({
         type: DataTypes.FLOAT,
         allowNull: false,
     },
-    image: {
-        type: DataTypes.STRING,
+    images: {
+        type: DataTypes.TEXT('long'),
         allowNull: false,
     },
     category: {

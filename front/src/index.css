@@ -82,3 +82,19 @@ td {
 .color-red {
   color: red;
 }
+
+.product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.carousel-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.carousel-container {
+  height: 330px;
+}

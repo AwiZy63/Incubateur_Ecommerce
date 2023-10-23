@@ -3,7 +3,7 @@ const Product = require("../models/product.model");
 
 exports.CreateProduct = async (req, res) => {
     try {
-        const { name, description, price, image, category } = req.body;
+        const { name, description, price, images, category } = req.body;
         const { isAdmin } = req.user;
 
         if (!isAdmin) {
@@ -13,7 +13,7 @@ exports.CreateProduct = async (req, res) => {
             });
         }
 
-        if (!name || !description || !price || !image || !category) {
+        if (!name || !description || !price || !images || !category) {
             return res.status(400).json({
                 error: true,
                 message: "Veuillez remplir tous les champs requis."
@@ -50,7 +50,7 @@ exports.CreateProduct = async (req, res) => {
             name,
             description,
             price,
-            image,
+            images,
             category
         });
 
@@ -162,7 +162,7 @@ exports.GetProductStock = async (req, res) => {
 exports.UpdateProduct = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, description, price, image, category } = req.body;
+        const { name, description, price, images, category } = req.body;
         const { isAdmin } = req.user;
 
         if (!isAdmin) {
@@ -179,7 +179,7 @@ exports.UpdateProduct = async (req, res) => {
             });
         }
 
-        if (!name || !description || !price || !image || !category) {
+        if (!name || !description || !price || !images || !category) {
             return res.status(400).json({
                 error: true,
                 message: "Veuillez remplir tous les champs requis."
@@ -231,7 +231,7 @@ exports.UpdateProduct = async (req, res) => {
             name,
             description,
             price,
-            image,
+            images,
             category
         }, {
             where: {
