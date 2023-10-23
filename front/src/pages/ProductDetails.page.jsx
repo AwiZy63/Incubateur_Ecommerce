@@ -6,6 +6,8 @@ import { addToCart } from '../stores/slices/Cart.slice';
 
 export default function ProductDetails(props) {
   const [product, setProduct] = useState({});
+  const [quantityToAdd, setQuantityToAdd] = useState(1);
+
   const { productId } = useParams();
   const navigate = useNavigate();
 
@@ -36,10 +38,12 @@ export default function ProductDetails(props) {
       name: product.name,
       price: product.price,
       image: product.image,
-      quantity: 1,
+      quantity: parseInt(quantityToAdd),
     }
 
     dispatch(addToCart(formattedProduct));
+
+    setQuantityToAdd(1);
   }
 
   return (
@@ -56,7 +60,19 @@ export default function ProductDetails(props) {
           <p className="title is-4">{product.name}</p>
           <p className="subtitle is-6 mt-4">{product.description || "Aucune description n'est disponible pour ce produit."}</p>
           <p className="title is-4 mt-4">{parseFloat(product.price).toFixed(2)}€</p>
-          <button onClick={() => handleAddToBasket()} className="button is-primary">Add to basket</button>
+          <div className='columns'>
+            <div className='column is-2'>
+              <label className="label">Quantité</label>
+              <input onChange={(e) => setQuantityToAdd(e.target.value)} className="input" type="number" min={1} value={quantityToAdd} defaultValue={1} />
+            </div>
+            <div className='column is-4'>
+              <label className="label">Total</label>
+              <p className="title is-4">{(parseFloat(product.price) * parseInt(quantityToAdd)).toFixed(2)}€</p>
+            </div>
+            <div className="column is-4">
+            </div>
+          </div>
+          <button onClick={() => handleAddToBasket()} className="button is-primary">Ajouter au panier</button>
         </div>
       </div>
     </section>

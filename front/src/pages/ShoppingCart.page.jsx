@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
-import { removeFromCart } from '../stores/slices/Cart.slice';
+import { removeFromCart, updateQuantity } from '../stores/slices/Cart.slice';
 
 export default function ShoppingCart() {
   const cartItems = useSelector(state => state.cart.cartItems);
@@ -25,13 +25,21 @@ export default function ShoppingCart() {
       setName(userData.name);
     }
   }, [userData]);
-  
+
 
   const handleSubmit = (event) => {
     event.preventDefault();
     console.log("Name:", name);
     console.log("Address:", address);
     console.log("Payment method:", paymentMethod);
+  }
+
+  const handleUpdateQuantity = (event, item) => {
+    if (event.target.value > 0) {
+      dispatch(updateQuantity({ itemId: item.id, quantity: event.target.value }));
+    } else {
+      dispatch(removeFromCart(item.id));
+    }
   }
 
   return (
@@ -54,7 +62,7 @@ export default function ShoppingCart() {
                 <tr key={item.id}>
                   <td>{item.name}</td>
                   <td>{item.price}€</td>
-                  <td>{item.quantity}</td>
+                  <td><input className="input cart-quantity-input" type="number" value={item.quantity} min={1} onChange={(event) => handleUpdateQuantity(event, item)} /></td>
                   <td>{(item.price * item.quantity).toFixed(2)}€</td>
                   <td>
                     <button onClick={() => dispatch(removeFromCart(item.id))} className="button is-danger is-small">Supprimer</button>

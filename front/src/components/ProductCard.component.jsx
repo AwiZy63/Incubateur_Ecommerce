@@ -5,9 +5,9 @@ import { addToCart } from '../stores/slices/Cart.slice';
 
 export default function ProductCard(props) {
     const { id, name, price, image } = props.product;
+    const { category, setSelectedCategory } = props;
 
     const dispatch = useDispatch();
-
 
     if (!id || !name || !price || !image) {
         return null;
@@ -28,6 +28,13 @@ export default function ProductCard(props) {
         dispatch(addToCart(formattedProduct));
     }
 
+    const handleSelectCategory = (event) => {
+        event.stopPropagation();
+        event.preventDefault();
+
+        setSelectedCategory(category?.name);
+    }
+
     return (
         <Link onClick={(e) => e.stopPropagation()} to={`/product/${id}`} className="card">
             <div className="card-image">
@@ -41,12 +48,15 @@ export default function ProductCard(props) {
                         <p className="title is-4 mb-4">{name}</p>
                     </div>
                     <div className="columns">
-                        <div className="column is-6">
+                        <div className="column is-5">
                             <p className="title is-4">{price.toFixed(2)}€</p>
                         </div>
                         <div className="column is-6">
-                            <button onClick={(event) => handleAddToCart(event)} className="button is-primary">Add to basket</button>
+                            <button onClick={(event) => handleAddToCart(event)} className="button is-primary">Ajouter au panier</button>
                         </div>
+                    </div>
+                    <div>
+                        <button onClick={(event) => handleSelectCategory(event)} className="category-button subtitle is-6">{category?.label}</button>
                     </div>
                 </div>
             </div>

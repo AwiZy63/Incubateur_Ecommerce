@@ -12,6 +12,6 @@ export default function ProductsCategories(props) {
     }
 
     return (
-        <button onClick={handleClick} className={`button is-secondary ${selectedCategory === category ? 'button-selected' : ''}`}>{category.label}</button>
+        <button onClick={handleClick} className={`button is-secondary ${selectedCategory === category.name ? 'button-selected' : ''}`}>{category.label}</button>
     )
 }
