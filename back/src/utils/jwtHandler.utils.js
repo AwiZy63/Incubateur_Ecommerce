@@ -10,14 +10,22 @@ const generateAccessToken = (user) => {
         email: user.email,
         isAdmin: user.isAdmin
     }, JWT_SECRET, {
-        expiresIn: "1d"
+        // Expires in 1 minute
+        expiresIn: "1m"
     });
 }
 
 const verifyAccessToken = (token) => {
     if (!token) throw new Error("Missing token.");
 
-    return jwt.verify(token, JWT_SECRET);
+    const res = jwt.verify(token, JWT_SECRET, { ignoreExpiration: false});
+
+    const hasExpired = res.exp < Math.floor(Date.now() / 1000);
+
+    console.log("hasExpired", hasExpired);
+    if (!res || !res?.id || hasExpired) return false;
+
+    return res;
 }
 
 module.exports = {

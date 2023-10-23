@@ -2,7 +2,6 @@ import React from 'react'
 
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
-import axios from 'axios'
 import { useDispatch } from 'react-redux'
 import { login } from '../stores/slices/User.slice'
 import { useNavigate } from 'react-router-dom'

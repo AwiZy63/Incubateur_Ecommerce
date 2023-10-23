@@ -2,7 +2,6 @@ import React from 'react';
 
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import axios from 'axios';
 import { apiHandler, notify } from '../App';
 import { useNavigate } from 'react-router-dom';
 

@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { apiHandler, notify } from '../App';
-import { login } from '../stores/slices/User.slice';
+import { login, logout } from '../stores/slices/User.slice';
+import { useNavigate } from 'react-router-dom';
 
 export default function Account() {
 
@@ -15,7 +15,8 @@ export default function Account() {
 
   const dispatch = useDispatch();
 
-  // Profile Formik configuration
+  const navigate = useNavigate();
+
   const profileFormik = useFormik({
     initialValues: {
       name: name,
@@ -33,12 +34,17 @@ export default function Account() {
           email: values.email?.length > 0 ? values.email : email,
         });
         console.log('Profile Update Response:', response);
-        
+
         notify("success", "Votre profil a bien été mis à jour");
       } catch (error) {
         console.error('Profile Update Error:', error);
-        // Handle profile update error, e.g., display an error message
+        const isTokenValid = await apiHandler.user.CheckAccessToken(apiHandler.accessToken);
         notify("error", error);
+
+        if (!isTokenValid || isTokenValid?.error) {
+          dispatch(logout());
+          navigate('/', { replace: true });
+        }
       } finally {
         dispatch(login({ ...userData, name: values.name, email: values.email }));
         setSubmitting(false);
@@ -60,7 +66,7 @@ export default function Account() {
       try {
         const response = await apiHandler.user.UpdateUserPassword(values);
         console.log('Password Change Response:', response);
-        
+
         if (response.error) throw response.message;
 
         notify("success", "Votre mot de passe a bien été mis à jour");
@@ -68,7 +74,13 @@ export default function Account() {
         passwordFormik.resetForm();
       } catch (error) {
         console.error('Password Change Error:', error);
-        
+
+        const isTokenValid = await apiHandler.user.CheckAccessToken(apiHandler.accessToken);
+
+        if (!isTokenValid || isTokenValid?.error) {
+          dispatch(logout());
+          navigate('/', { replace: true });
+        }
         notify("error", error);
       } finally {
         setSubmitting(false);
@@ -82,8 +94,7 @@ export default function Account() {
       setEmail(userData?.email);
       profileFormik.setValues({ name: userData?.name, email: userData?.email });
     }
-    
-    // Fetch user data and populate the profile form fields
+
     const fetchUserData = async () => {
       try {
         const response = await apiHandler.user.GetUserData();
@@ -98,11 +109,17 @@ export default function Account() {
         profileFormik.setValues({ name, email });
       } catch (error) {
         notify("error", error);
-        notify("error", "Essayez de vous reconnecter");
+        const isTokenValid = await apiHandler.user.CheckAccessToken(apiHandler.accessToken);
+
+        if (!isTokenValid || isTokenValid?.error) {
+          dispatch(logout());
+          navigate('/', { replace: true });
+        }
       }
     };
 
     fetchUserData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userData]);
 
   return (

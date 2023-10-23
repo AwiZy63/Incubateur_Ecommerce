@@ -8,6 +8,7 @@ export default function NotFound() {
     useEffect(() => {
         notify("error", "Cette page n'existe pas");
         navigate('/', { replace: true });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     return (

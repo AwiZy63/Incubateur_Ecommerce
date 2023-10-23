@@ -9,23 +9,23 @@ class ApiHandler {
             // withCredentials: true,
         });
 
-        this.accessToken = accessToken || null;
+        this.accessToken = JSON.parse(JSON.parse(localStorage.getItem('persist:root'))?.user)?.userData?.accessToken || accessToken || null;
     }
 
     get(url) {
-        return this.api.get(url).then((response) => response.data).catch((error) => error.response.data);
+        return this.api.get(url).then((response) => response?.data || { error: false }).catch((error) => error?.response?.data || { error: true, message: "Erreur interne, veuillez réessayer plus tard." });
     }
 
     post(url, data) {
-        return this.api.post(url, data).then((response) => response.data).catch((error) => error.response.data);
+        return this.api.post(url, data).then((response) => response?.data || { error: false }).catch((error) => error?.response?.data || { error: true, message: "Erreur interne, veuillez réessayer plus tard." });
     }
 
     patch(url, data) {
-        return this.api.patch(url, data).then((response) => response.data).catch((error) => error.response.data);
+        return this.api.patch(url, data).then((response) => response?.data || { error: false }).catch((error) => error?.response?.data || { error: true, message: "Erreur interne, veuillez réessayer plus tard." });
     }
 
     delete(url) {
-        return this.api.delete(url).then((response) => response.data).catch((error) => error.response.data);
+        return this.api.delete(url).then((response) => response?.data || { error: false }).catch((error) => error?.response?.data || { error: true, message: "Erreur interne, veuillez réessayer plus tard." });
     }
 
     setAccessToken(accessToken) {
@@ -40,6 +40,7 @@ class ApiHandler {
         SignIn: (data) => this.post("/user/signin", data),
         SignOut: () => this.post("/user/signout"),
         GetUserData: () => this.post("/user/get"),
+        CheckAccessToken: (data) => this.post("/user/check", data),
         UpdateUserData: (data) => this.patch("/user/update", data),
         UpdateUserPassword: (data) => this.patch("/user/update/password", data),
     }

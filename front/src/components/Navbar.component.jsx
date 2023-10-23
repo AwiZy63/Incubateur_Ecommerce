@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom'
 import { removeFromCart } from '../stores/slices/Cart.slice';
 import { apiHandler, notify } from '../App';
+import { logout } from '../stores/slices/User.slice';
 
 export default function Navbar(props) {
     const { profileDropdownActive, setProfileDropdownActive, cartDropdownActive, setCartDropdownActive } = props;
@@ -17,14 +18,14 @@ export default function Navbar(props) {
         setProfileDropdownActive(false)
         setCartDropdownActive(false)
     }
-
+    
     const handleLogout = async () => {
         
         const response = await apiHandler.user.SignOut();
         notify('info', response.message);
+        dispatch(logout());
         
         navigate('/', { replace: true });
-        dispatch({ type: 'user/logout' });
     }
 
     return (

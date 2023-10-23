@@ -39,6 +39,14 @@ const authenticateUser = async (req, res, next) => {
 
         next();
     } catch (error) {
+        console.error("authenticateUser", error)
+        // Check if TokenExpiredError
+        if (error?.name === "TokenExpiredError") {
+            return res.status(401).json({
+                error: true,
+                message: "Votre session a expiré, veuillez vous reconnecter."
+            })
+        }
         return res.status(500).json({
             error: true,
             message: "Une erreur interne est survenue."

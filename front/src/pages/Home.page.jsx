@@ -12,12 +12,20 @@ export default function Home() {
     const fetchProducts = async () => {
       const response = await apiHandler.product.GetProducts();
       // console.log("Products :", response);
+      if (!response || response?.length <= 0) {
+        return setProducts([]);
+      }
+      
       setProducts(response.products);
     }
 
     const fetchCategories = async () => {
       const response = await apiHandler.productCategory.GetProductCategories();
       // console.log("Categories :", response);
+      if (!response || response?.length <= 0) {
+        return setCategories([]);
+      }
+
       setCategories(response.categories);
     }
 

@@ -1,5 +1,5 @@
 const User = require("../models/user.model");
-const { generateAccessToken } = require("../utils/jwtHandler.utils");
+const { generateAccessToken, verifyAccessToken } = require("../utils/jwtHandler.utils");
 const { hashPassword, comparePassword } = require("../utils/passwordHandler.utils");
 
 exports.SignUp = async (req, res) => {
@@ -273,6 +273,52 @@ exports.UpdateUserPassword = async (req, res) => {
         });       
     } catch (error) {
         console.error("UserController::UpdateUserPassword", error)
+        return res.status(500).json({
+            error: true,
+            message: "Une erreur interne est survenue."
+        });
+    }
+}
+
+exports.CheckAccessToken = async (req, res) => {
+    try {
+        const { accessToken } = req.body;
+
+        if (!accessToken) {
+            return res.status(400).json({
+                error: true,
+                message: "Veuillez fournir un token d'accès."
+            });
+        }
+
+        const user = await User.findOne({
+            where: {
+                accessToken
+            }
+        });
+
+        if (!user) {
+            return res.status(400).json({
+                error: true,
+                message: "Token d'accès invalide."
+            });
+        }
+
+        const isTokenValid = await verifyAccessToken(accessToken);
+
+        if (!isTokenValid) {
+            return res.status(400).json({
+                error: true,
+                message: "Token d'accès invalide et/ou expiré."
+            });
+        }
+
+        return res.status(200).json({
+            error: false,
+            message: "Token d'accès valide."
+        });
+    } catch (error) {
+        console.error("UserController::CheckAccessToken", error)
         return res.status(500).json({
             error: true,
             message: "Une erreur interne est survenue."
