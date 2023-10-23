@@ -21,12 +21,14 @@ const cartSlice = createSlice({
             notify("success", `Vous avez ajouté ${newItem.quantity} ${newItem.name} à votre panier`);
         },
         removeFromCart: (state, action) => {
-            const itemId = action.payload;
+            const { itemId, outOfStock } = action.payload;
             const itemToRemove = state.cartItems.find((item) => item.id === itemId);
 
             state.cartItems = state.cartItems.filter((item) => item.id !== itemId);
 
-            notify("info", `Vous avez supprimé ${itemToRemove.quantity} ${itemToRemove.name} de votre panier`);
+            if (!outOfStock) {
+                notify("info", `Vous avez supprimé ${itemToRemove.quantity} ${itemToRemove.name} de votre panier`);
+            }
         },
         updateQuantity: (state, action) => {
             const { itemId, quantity } = action.payload;

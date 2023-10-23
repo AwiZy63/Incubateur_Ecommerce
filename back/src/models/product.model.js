@@ -30,7 +30,11 @@ Product.init({
     category: {
         type: DataTypes.STRING,
         allowNull: false,
-    }
+    },
+    stock: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+    },
 }, {
     sequelize,
     modelName: 'Product',

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { removeFromCart, updateQuantity } from '../stores/slices/Cart.slice';
+import { apiHandler, notify } from '../App';
 
 export default function ShoppingCart() {
   const cartItems = useSelector(state => state.cart.cartItems);
@@ -24,6 +25,29 @@ export default function ShoppingCart() {
     if (userData?.isLogged) {
       setName(userData.name);
     }
+
+    if (cartItems.length > 0) {
+      cartItems.forEach(async (item) => {
+        const itemStock = await apiHandler.product.GetProductStock(item.id);
+
+        if (!itemStock || itemStock?.error) {
+          return false;
+        }
+
+        if (itemStock.stock === 0) {
+          dispatch(removeFromCart({ itemId: item.id, outOfStock: true }));
+          notify('error', `Le produit ${item.name} n'est plus en stock`);
+          return false;
+        }
+
+        if (itemStock.stock < item.quantity) {
+          dispatch(updateQuantity({ itemId: item.id, quantity: itemStock.stock }));
+          notify('error', `Le stock du produit (${item.name}) est insuffisant, votre panier a été mis à jour`);
+          return false;
+        }
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userData]);
 
 
@@ -34,11 +58,32 @@ export default function ShoppingCart() {
     console.log("Payment method:", paymentMethod);
   }
 
-  const handleUpdateQuantity = (event, item) => {
-    if (event.target.value > 0) {
-      dispatch(updateQuantity({ itemId: item.id, quantity: event.target.value }));
+  const handleUpdateQuantity = async (event, item) => {
+    const newQuantity = event.target.value
+
+    if (newQuantity > 0) {
+      const itemStock = await apiHandler.product.GetProductStock(item.id);
+
+      if (!itemStock || itemStock?.error) {
+        return false;
+      }
+
+
+      if (itemStock.stock === 0) {
+        dispatch(removeFromCart({ itemId: item.id, outOfStock: true }));
+        notify('error', `Le produit ${item.name} n'est plus en stock`);
+        return false;
+      }
+
+      if (newQuantity > itemStock.stock) {
+        dispatch(updateQuantity({ itemId: item.id, quantity: itemStock.stock }));
+        notify('error', 'Le stock du produit est insuffisant');
+        return false;
+      }
+
+      dispatch(updateQuantity({ itemId: item.id, quantity: newQuantity }));
     } else {
-      dispatch(removeFromCart(item.id));
+      dispatch(removeFromCart({ itemId: item.id }));
     }
   }
 

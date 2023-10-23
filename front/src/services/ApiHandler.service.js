@@ -48,6 +48,7 @@ class ApiHandler {
     product = {
         GetProducts: () => this.get("/product"),
         GetProduct: (id) => this.get(`/product/${id}`),
+        GetProductStock: (id) => this.get(`/product/stock/${id}`),
         CreateProduct: (data) => this.post("/product/create", data),
         UpdateProduct: (id, data) => this.patch(`/product/update/${id}`, data),
         DeleteProduct: (id) => this.delete(`/product/delete/${id}`),

@@ -122,6 +122,43 @@ exports.GetProduct = async (req, res) => {
     }
 }
 
+exports.GetProductStock = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (!id || isNaN(id)) {
+            return res.status(400).json({
+                error: true,
+                message: "L'identifiant du produit est invalide."
+            });
+        }
+
+        const product = await Product.findOne({
+            where: {
+                id
+            }
+        });
+
+        if (!product) {
+            return res.status(404).json({
+                error: true,
+                message: "Ce produit n'existe pas."
+            });
+        }
+
+        return res.status(200).json({
+            error: false,
+            stock: product.stock || 0
+        });
+    } catch (error) {
+        console.error("ProductController::GetProductStock:", error);
+        return res.status(500).json({
+            error: true,
+            message: "Une erreur interne est survenue."
+        });
+    }
+}
+
 exports.UpdateProduct = async (req, res) => {
     try {
         const { id } = req.params;

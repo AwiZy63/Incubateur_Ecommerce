@@ -1,7 +1,7 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom'
-import { removeFromCart } from '../stores/slices/Cart.slice';
+import { removeFromCart, updateQuantity } from '../stores/slices/Cart.slice';
 import { apiHandler, notify } from '../App';
 import { logout } from '../stores/slices/User.slice';
 
@@ -18,15 +18,41 @@ export default function Navbar(props) {
         setProfileDropdownActive(false)
         setCartDropdownActive(false)
     }
-    
+
     const handleLogout = async () => {
-        
+
         const response = await apiHandler.user.SignOut();
         notify('info', response.message);
         dispatch(logout());
-        
+
         navigate('/', { replace: true });
     }
+
+    useEffect(() => {
+        if (cart.length > 0) {
+            cart.forEach(async (item) => {
+                const itemStock = await apiHandler.product.GetProductStock(item.id);
+
+                if (!itemStock || itemStock?.error) {
+                    return false;
+                }
+
+                if (itemStock.stock === 0) {
+                    dispatch(removeFromCart({ itemId: item.id, outOfStock: true }));
+                    notify('error', `Le produit ${item.name} n'est plus en stock`);
+                    return false;
+                }
+
+                if (itemStock.stock < item.quantity) {
+                    dispatch(updateQuantity({ itemId: item.id, quantity: itemStock.stock }));
+                    notify('error', `Le stock du produit (${item.name}) est insuffisant, votre panier a été mis à jour`);
+                    return false;
+                }
+            });
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
 
     return (
         <nav className="navbar is-dark" role="navigation" aria-label="main navigation">
@@ -70,7 +96,7 @@ export default function Navbar(props) {
                                                             <td>{item.quantity}</td>
                                                             <td>{(item.price * item.quantity).toFixed(2)}€</td>
                                                             <td>
-                                                                <button onClick={() => dispatch(removeFromCart(item.id))} className="button is-danger is-small">Supprimer</button>
+                                                                <button onClick={() => dispatch(removeFromCart({ itemId: item.id }))} className="button is-danger is-small">Supprimer</button>
                                                             </td>
                                                         </tr>
                                                     )) : (<tr><td colSpan="5">Aucun produit dans le panier</td></tr>)}
