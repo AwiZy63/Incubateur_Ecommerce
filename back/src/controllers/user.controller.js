@@ -325,3 +325,40 @@ exports.CheckAccessToken = async (req, res) => {
         });
     }
 }
+
+exports.GetAllUsers = async (req, res) => {
+    try {
+        const { id: userId } = req.user;
+
+        const user = await User.findOne({
+            where: {
+                id: userId
+            }
+        });
+
+        if (!user || !user.isAdmin) {
+            return res.status(403).json({
+                error: true,
+                message: "Vous n'avez pas les droits requis."
+            });
+        }
+
+        const users = await User.findAll({
+            attributes: {
+                exclude: ["password", "accessToken"]
+            }
+        });
+
+        return res.status(200).json({
+            error: false,
+            message: "Liste des utilisateurs récupérée avec succès.",
+            users
+        });
+    } catch (error) {
+        console.error("UserController::GetAllUsers", error)
+        return res.status(500).json({
+            error: true,
+            message: "Une erreur interne est survenue."
+        });
+    }
+}

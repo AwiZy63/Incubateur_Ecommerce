@@ -13,5 +13,6 @@ router.post("/check", userController.CheckAccessToken);
 router.patch("/update", authenticateUser, userController.UpdateUserData);
 router.patch("/update/password", authenticateUser, userController.UpdateUserPassword);
 router.post("/get", authenticateUser, userController.GetUserData);
+router.post('/get/all', authenticateUser, userController.GetAllUsers);
 
 module.exports = router;

@@ -28,6 +28,10 @@ app.use("/api/v1/product", productRoutes);
 const productCategoryRoutes = require("./src/routes/product-category.routes");
 app.use("/api/v1/product-category", productCategoryRoutes);
 
+// Sales routes
+const saleRoutes = require("./src/routes/sale.routes");
+app.use("/api/v1/sale", saleRoutes);
+
 app.listen(apiConfig.port, async () => {
     try {
         await sequelize.authenticate();

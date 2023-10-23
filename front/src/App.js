@@ -15,6 +15,11 @@ import NotFound from './pages/NotFound.page';
 import ApiHandler from './services/ApiHandler.service';
 import LoadingScreen from './components/LoadingScreen.component';
 import { logout } from './stores/slices/User.slice';
+import NavbarPanel from './components/Panel/Navbar.component';
+import Dashboard from './pages/Panel/Dashboard.page';
+import ProductsList from './pages/Panel/Products/ProductsList.page';
+import SalesList from './pages/Panel/Sales/SalesList.page';
+import UsersList from './pages/Panel/Users/UsersList.page';
 
 export const notify = (type, text) => toast(text, { type: ["info", "success", "warning", "error"].includes(type.toLowerCase()) ? type.toLowerCase() : "default" });
 
@@ -41,12 +46,17 @@ function App() {
       }
     }
 
-    if (JSON.parse(JSON.parse(localStorage.getItem('persist:root'))?.user)?.userData?.isLogged) {
-      apiHandler.setAccessToken(JSON.parse(JSON.parse(localStorage.getItem('persist:root'))?.user)?.userData?.accessToken);
-      checkToken();
-
-      setIsLogged(true);
-      setIsLoading(false);
+    if (localStorage.getItem("persist:root") && JSON.parse(JSON.parse(localStorage.getItem('persist:root'))?.user)?.userData?.isLogged) {
+      if (userData.isLogged) {
+        apiHandler.setAccessToken(JSON.parse(JSON.parse(localStorage.getItem('persist:root'))?.user)?.userData?.accessToken);
+        checkToken();
+        
+        setIsLogged(true);
+        setIsLoading(false);
+      } else {
+        setIsLogged(false);
+        setIsLoading(false);
+      }
     } else {
       setIsLogged(false);
       setIsLoading(false);
@@ -65,6 +75,7 @@ function App() {
       {/* Navbar with bulma */}
       <ToastContainer />
       <Navbar profileDropdownActive={profileDropdownActive} setProfileDropdownActive={setProfileDropdownActive} cartDropdownActive={cartDropdownActive} setCartDropdownActive={setCartDropdownActive} />
+      <NavbarPanel />
       <Routes>
         <Route path="/" element={<Home />} />
         {isLogged ?
@@ -80,6 +91,22 @@ function App() {
           <Route index element={<Navigate to={"/"} replace={true} />} />
           <Route path=":productId" element={<ProductDetails />} />
         </Route>
+
+        <Route path='/panel'>
+          <Route index element={<Navigate to={'/panel/dashboard'} replace={true} />} />
+          <Route path='dashboard' element={<Dashboard />} />
+          <Route path='products'>
+            <Route index element={<ProductsList />} />
+          </Route>
+          <Route path='sales'>
+            <Route index element={<SalesList />} />
+          </Route>
+          <Route path='users'>
+            <Route index element={<UsersList />} />
+          </Route>
+          <Route path='*' element={<Navigate to={'/panel'} replace={true} />} />
+        </Route>
+
         <Route path='*' element={<NotFound />} />
       </Routes>
     </BrowserRouter>

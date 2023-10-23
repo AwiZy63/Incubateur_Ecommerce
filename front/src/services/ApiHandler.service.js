@@ -9,7 +9,11 @@ class ApiHandler {
             // withCredentials: true,
         });
 
-        this.accessToken = JSON.parse(JSON.parse(localStorage.getItem('persist:root'))?.user)?.userData?.accessToken || accessToken || null;
+        this.accessToken = accessToken || null;
+
+        if (localStorage.getItem("persist:root") && JSON.parse(localStorage.getItem("persist:root"))?.user) {
+            this.setAccessToken(JSON.parse(JSON.parse(localStorage.getItem('persist:root'))?.user)?.userData?.accessToken || null);
+        }
     }
 
     get(url) {
@@ -43,6 +47,7 @@ class ApiHandler {
         CheckAccessToken: (data) => this.post("/user/check", data),
         UpdateUserData: (data) => this.patch("/user/update", data),
         UpdateUserPassword: (data) => this.patch("/user/update/password", data),
+        GetAllUsers: () => this.post("/user/get/all"),
     }
 
     product = {
@@ -60,6 +65,14 @@ class ApiHandler {
         CreateProductCategory: (data) => this.post("/product-category/create", data),
         UpdateProductCategory: (id, data) => this.patch(`/product-category/update/${id}`, data),
         DeleteProductCategory: (id) => this.delete(`/product-category/delete/${id}`),
+    }
+
+    sale = {
+        CreateSale: (data) => this.post("/sale", data),
+        GetAllSales: () => this.get("/sale"),
+        GetSale: (id) => this.get(`/sale/${id}`),
+        GetUserSale: (id) => this.get(`/sale/user/${id}`),
+        GetAtDate: (data) => this.post("/sale/date", data),
     }
 }
 

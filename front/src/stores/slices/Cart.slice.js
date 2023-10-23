@@ -24,11 +24,11 @@ const cartSlice = createSlice({
             const { itemId, outOfStock } = action.payload;
             const itemToRemove = state.cartItems.find((item) => item.id === itemId);
 
-            state.cartItems = state.cartItems.filter((item) => item.id !== itemId);
-
+            console.log(itemToRemove)
             if (!outOfStock) {
                 notify("info", `Vous avez supprimé ${itemToRemove.quantity} ${itemToRemove.name} de votre panier`);
             }
+            state.cartItems = state.cartItems.filter((item) => item.id !== itemId);
         },
         updateQuantity: (state, action) => {
             const { itemId, quantity } = action.payload;

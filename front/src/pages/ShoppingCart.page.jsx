@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
-import { removeFromCart, updateQuantity } from '../stores/slices/Cart.slice';
+import { emptyCart, removeFromCart, updateQuantity } from '../stores/slices/Cart.slice';
 import { apiHandler, notify } from '../App';
 
 export default function ShoppingCart() {
@@ -51,11 +51,43 @@ export default function ShoppingCart() {
   }, [userData]);
 
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     console.log("Name:", name);
     console.log("Address:", address);
     console.log("Payment method:", paymentMethod);
+
+    if (cartItems.length === 0) {
+      notify('error', 'Votre panier est vide');
+      return false;
+    }
+
+    if (!name || !address || !paymentMethod) {
+      notify('error', 'Veuillez remplir tous les champs');
+      return false;
+    }
+
+    if (paymentMethod === "stripe") {
+      console.log("Stripe");
+    }
+
+    if (paymentMethod === "paypal") {
+      console.log("Paypal");
+    }
+
+    const totalPrice = calculateTotal();
+
+    const response = await apiHandler.sale.CreateSale({ name, address, paymentMethod, cartContent: JSON.stringify(cartItems), total: totalPrice });
+
+    if (response?.error) {
+      notify('error', response.error);
+      return false;
+    }
+
+    dispatch(emptyCart());
+    notify('success', response?.message || "Votre commande a été passée avec succès");
+
+    return true;
   }
 
   const handleUpdateQuantity = async (event, item) => {
@@ -110,7 +142,7 @@ export default function ShoppingCart() {
                   <td><input className="input cart-quantity-input" type="number" value={item.quantity} min={1} onChange={(event) => handleUpdateQuantity(event, item)} /></td>
                   <td>{(item.price * item.quantity).toFixed(2)}€</td>
                   <td>
-                    <button onClick={() => dispatch(removeFromCart(item.id))} className="button is-danger is-small">Supprimer</button>
+                    <button onClick={() => dispatch(removeFromCart({ itemId: item.id }))} className="button is-danger is-small">Supprimer</button>
                   </td>
                 </tr>
               )) : (<tr><td colSpan="5">Aucun produit dans le panier</td></tr>)}

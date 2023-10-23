@@ -15,16 +15,21 @@ const generateAccessToken = (user) => {
 }
 
 const verifyAccessToken = (token) => {
-    if (!token) throw new Error("Missing token.");
+    try {
+        if (!token) throw new Error("Missing token.");
 
-    const res = jwt.verify(token, JWT_SECRET, { ignoreExpiration: false});
+        const res = jwt.verify(token, JWT_SECRET, { ignoreExpiration: false });
 
-    const hasExpired = res.exp < Math.floor(Date.now() / 1000);
+        const hasExpired = res.exp < Math.floor(Date.now() / 1000);
 
-    console.log("hasExpired", hasExpired);
-    if (!res || !res?.id || hasExpired) return false;
+        console.log("hasExpired", hasExpired);
+        if (!res || !res?.id || hasExpired) return false;
 
-    return res;
+        return res;
+    } catch (error) {
+        console.error("verifyAccessToken", error);
+        return false;
+    }
 }
 
 module.exports = {
