@@ -17,12 +17,12 @@ export default function Dashboard() {
         return;
       }
 
-      const formattedData = users.users.slice(0, 5).map((user) => ({
+      const formattedData = users.users.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5).map((user) => ({
         ...user,
         signUpSince: new Date(user.createdAt)
       }));
 
-      setLastUsers(formattedData.reverse());
+      setLastUsers(formattedData);
     }
 
     const fetchAllProducts = async () => {
@@ -32,9 +32,26 @@ export default function Dashboard() {
         return;
       }
 
-      const products = sales.sales.map((sale) => JSON.parse(sale.cartContent)).flat().slice(0, 5);
+      console.log(sales.sales)
 
-      console.log(products.reverse())
+      // const products = sales.sales.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map((sale) => JSON.parse(sale.cartContent)).flat().slice(0, 5);
+      // Same like above but keep createdAt date
+      const sortedSales = sales.sales.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+      const products = [];
+
+      sortedSales.forEach((sale) => {
+        const cartContent = JSON.parse(sale.cartContent);
+
+        cartContent.forEach((product) => {
+          products.push({
+            ...product,
+            createdAt: sale.createdAt
+          })
+        })
+      })
+
+      console.log(products)
       setListProducts(products.slice(0, 5));
     }
 
@@ -95,8 +112,8 @@ export default function Dashboard() {
               </tr>
             </thead>
             <tbody>
-              {listProducts?.map(product => (
-                <tr key={product.id}>
+              {listProducts?.map((product, index) => (
+                <tr key={index}>
                   <td>{product.name}</td>
                   <td>{product.quantity}</td>
                   <td>{product.price} €</td>
